@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ESP32 Parking Dashboard</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 40px;
+    }
+
+    .spot {
+      width: 180px;
+    }
+
+    .circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: gray;
+      margin: 15px auto;
+    }
+
+    .label {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .status {
+      font-weight: bold;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Parking Spot Availability</h1>
+<h2 id="count">Available: -- / 3</h2>
+
+<div class="container">
+
+  <div class="spot">
+    <div class="label">P1</div>
+    <div id="c1" class="circle"></div>
+    <div id="s1" class="status">--</div>
+  </div>
+
+  <div class="spot">
+    <div class="label">P2</div>
+    <div id="c2" class="circle"></div>
+    <div id="s2" class="status">--</div>
+  </div>
+
+  <div class="spot">
+    <div class="label">P3</div>
+    <div id="c3" class="circle"></div>
+    <div id="s3" class="status">--</div>
+  </div>
+
+</div>
+
+<script>
+  // 🔥 Firebase config (ONLY DATABASE URL NEEDED)
+  var firebaseConfig = {
+    databaseURL: "https://esp32-parking-1c553-a6c2e-default-rtdb.asia-southeast1.firebasedatabase.app/"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  var db = firebase.database();
+
+  db.ref("parking").on("value", snapshot => {
+    const data = snapshot.val();
+    if (!data) return;
+
+    updateSpot("1", data.P1);
+    updateSpot("2", data.P2);
+    updateSpot("3", data.P3);
+
+    document.getElementById("count").innerText =
+      "Available: " + data.availableCount + " / 3";
+  });
+
+  function updateSpot(id, spot) {
+    let circle = document.getElementById("c" + id);
+    let status = document.getElementById("s" + id);
+
+    if (spot.status === "Occupied") {
+      circle.style.background = "red";
+      status.innerText = "Occupied";
+      status.style.color = "red";
+    } else {
+      circle.style.background = "green";
+      status.innerText = "Available";
+      status.style.color = "green";
+    }
+  }
+</script>
+
+</body>
+</html>
