@@ -143,6 +143,31 @@
   </div>
 
   <script>
+
+    const OFFLINE_TIMEOUT = 15; // seconds
+
+    db.ref("/system").on("value", snapshot => {
+      const system = snapshot.val();
+      const statusEl = document.getElementById("systemStatus");
+    
+      if (!system || !system.lastSeen) {
+        statusEl.innerText = "System status: OFFLINE";
+        statusEl.style.color = "red";
+        return;
+      }
+    
+      const now = Math.floor(Date.now() / 1000);
+      const diff = now - system.lastSeen;
+    
+      if (diff > OFFLINE_TIMEOUT) {
+        statusEl.innerText = "System status: OFFLINE";
+        statusEl.style.color = "red";
+      } else {
+        statusEl.innerText = "System status: ONLINE";
+        statusEl.style.color = "green";
+      }
+    });
+
     var firebaseConfig = {
       databaseURL: "https://esp32-parking-1c553-a6c2e-default-rtdb.asia-southeast1.firebasedatabase.app/"
     };
