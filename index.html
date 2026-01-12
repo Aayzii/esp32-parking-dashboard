@@ -47,11 +47,11 @@
     }
 
     .header-logo img {
-      height: 90px; /* 🔥 Bigger logo */
+      height: 110px; /* 🔥 Bigger on PC */
       object-fit: contain;
     }
 
-    /* ===== SYSTEM INFO (TOP LEFT) ===== */
+    /* ===== SYSTEM INFO (PC: TOP LEFT) ===== */
     .info-box {
       position: fixed;
       top: 20px;
@@ -107,11 +107,14 @@
       margin-top: 5px;
     }
 
-    /* ===== MOBILE (UNCHANGED LOGIC) ===== */
+    /* ===== MOBILE UI ===== */
     @media (max-width: 768px) {
+
+      /* Header: logo below title */
       .header-box {
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
+        padding: 18px;
       }
 
       .header-title {
@@ -119,13 +122,15 @@
       }
 
       .header-logo img {
-        height: 60px;
+        height: 80px;
       }
 
+      /* System info moves below header */
       .info-box {
         position: static;
-        margin: 10px auto;
+        margin: 15px auto 10px;
         text-align: center;
+        font-size: 15px;
       }
 
       .container {
