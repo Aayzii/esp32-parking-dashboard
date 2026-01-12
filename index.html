@@ -1,25 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>ESP32 Parking Dashboard</title>
+
+  <!-- Mobile scaling -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <style>
+    /* ===== Global ===== */
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       text-align: center;
-      margin-top: 30px;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+
+      /* 🌄 Background image */
+      background-image: url("background.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
 
+    h1, h2, h3 {
+      color: #222;
+      margin: 10px 0;
+    }
+
+    /* ===== Container ===== */
     .container {
       display: flex;
       justify-content: space-around;
       margin-top: 40px;
+      padding: 20px;
     }
 
+    /* ===== Parking Card ===== */
     .spot {
       width: 180px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .label {
+      font-size: 20px;
+      font-weight: bold;
     }
 
     .circle {
@@ -30,89 +62,118 @@
       margin: 15px auto;
     }
 
-    .label {
-      font-size: 20px;
-      font-weight: bold;
-    }
-
     .status {
       font-weight: bold;
       margin-top: 5px;
+    }
+
+    /* ===== Mobile View ===== */
+    @media (max-width: 768px) {
+
+      h1 {
+        font-size: 24px;
+      }
+
+      h2, h3 {
+        font-size: 18px;
+      }
+
+      .container {
+        flex-direction: column;
+        align-items: center;
+        gap: 25px;
+      }
+
+      .spot {
+        width: 90%;
+        max-width: 300px;
+      }
+
+      .circle {
+        width: 100px;
+        height: 100px;
+      }
+
+      .label {
+        font-size: 22px;
+      }
+
+      .status {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-<h1>Parking Spot Availability</h1>
-<h2 id="count">Available: -- / 3</h2>
-<h3 id="updated">Last updated: --</h3>
+  <h1>Parking Spot Availability</h1>
+  <h2 id="count">Available: -- / 3</h2>
+  <h3 id="updated">Last updated: --</h3>
 
+  <div class="container">
 
-<div class="container">
+    <div class="spot">
+      <div class="label">P1</div>
+      <div id="c1" class="circle"></div>
+      <div id="s1" class="status">--</div>
+    </div>
 
-  <div class="spot">
-    <div class="label">P1</div>
-    <div id="c1" class="circle"></div>
-    <div id="s1" class="status">--</div>
+    <div class="spot">
+      <div class="label">P2</div>
+      <div id="c2" class="circle"></div>
+      <div id="s2" class="status">--</div>
+    </div>
+
+    <div class="spot">
+      <div class="label">P3</div>
+      <div id="c3" class="circle"></div>
+      <div id="s3" class="status">--</div>
+    </div>
+
   </div>
 
-  <div class="spot">
-    <div class="label">P2</div>
-    <div id="c2" class="circle"></div>
-    <div id="s2" class="status">--</div>
-  </div>
+  <script>
+    var firebaseConfig = {
+      databaseURL: "https://esp32-parking-1c553-a6c2e-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    };
 
-  <div class="spot">
-    <div class="label">P3</div>
-    <div id="c3" class="circle"></div>
-    <div id="s3" class="status">--</div>
-  </div>
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.database();
 
-</div>
+    db.ref("parking").on("value", snapshot => {
+      const data = snapshot.val();
+      if (!data) return;
 
-<script>
-  var firebaseConfig = {
-    databaseURL: "https://esp32-parking-1c553-a6c2e-default-rtdb.asia-southeast1.firebasedatabase.app/"
-  };
+      updateSpot("1", data.P1);
+      updateSpot("2", data.P2);
+      updateSpot("3", data.P3);
 
-  firebase.initializeApp(firebaseConfig);
-  var db = firebase.database();
+      document.getElementById("count").innerText =
+        "Available: " + data.availableCount + " / 3";
 
-  db.ref("parking").on("value", snapshot => {
-    const data = snapshot.val();
-    if (!data) return;
+      if (data.lastUpdate) {
+        const date = new Date(data.lastUpdate * 1000);
+        document.getElementById("updated").innerText =
+          "Last updated: " + date.toLocaleTimeString();
+      }
+    });
 
-    updateSpot("1", data.P1);
-    updateSpot("2", data.P2);
-    updateSpot("3", data.P3);
+    function updateSpot(id, spot) {
+      let circle = document.getElementById("c" + id);
+      let status = document.getElementById("s" + id);
 
-    document.getElementById("count").innerText =
-      "Available: " + data.availableCount + " / 3";
-
-    // 🕒 Last updated
-    if (data.lastUpdate) {
-      const date = new Date(data.lastUpdate * 1000);
-      document.getElementById("updated").innerText =
-        "Last updated: " + date.toLocaleTimeString();
+      if (spot.status === "Occupied") {
+        circle.style.background = "red";
+        status.innerText = "Occupied";
+        status.style.color = "red";
+      } else {
+        circle.style.background = "green";
+        status.innerText = "Available";
+        status.style.color = "green";
+      }
     }
-  });
-
-  function updateSpot(id, spot) {
-    let circle = document.getElementById("c" + id);
-    let status = document.getElementById("s" + id);
-
-    if (spot.status === "Occupied") {
-      circle.style.background = "red";
-      status.innerText = "Occupied";
-      status.style.color = "red";
-    } else {
-      circle.style.background = "green";
-      status.innerText = "Available";
-      status.style.color = "green";
-    }
-  }
-</script>
+  </script>
 
 </body>
 </html>
