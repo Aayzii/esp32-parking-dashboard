@@ -143,60 +143,65 @@
   </div>
 
   <script>
-
-    const OFFLINE_TIMEOUT = 15; // seconds
-
-    db.ref("/system").on("value", snapshot => {
-      const system = snapshot.val();
-      const statusEl = document.getElementById("systemStatus");
-    
-      if (!system || !system.lastSeen) {
-        statusEl.innerText = "System status: OFFLINE";
-        statusEl.style.color = "red";
-        return;
-      }
-    
-      const now = Math.floor(Date.now() / 1000);
-      const diff = now - system.lastSeen;
-    
-      if (diff > OFFLINE_TIMEOUT) {
-        statusEl.innerText = "System status: OFFLINE";
-        statusEl.style.color = "red";
-      } else {
-        statusEl.innerText = "System status: ONLINE";
-        statusEl.style.color = "green";
-      }
-    });
-
+    /* ===== Firebase Init ===== */
     var firebaseConfig = {
       databaseURL: "https://esp32-parking-1c553-a6c2e-default-rtdb.asia-southeast1.firebasedatabase.app/"
     };
-
+  
     firebase.initializeApp(firebaseConfig);
     var db = firebase.database();
-
+  
+    /* ===== System Online / Offline Detection ===== */
+    const OFFLINE_TIMEOUT = 15; // seconds
+  
+    db.ref("/system").on("value", snapshot => {
+      const system = snapshot.val();
+      const statusEl = document.getElementById("systemStatus");
+  
+      if (!system || !system.lastSeen) {
+        statusEl.innerText = "System status: OFFLINE";
+        statusEl.style.color = "red";
+        setUIEnabled(false);
+        return;
+      }
+  
+      const now = Math.floor(Date.now() / 1000);
+      const diff = now - system.lastSeen;
+  
+      if (diff > OFFLINE_TIMEOUT) {
+        statusEl.innerText = "System status: OFFLINE";
+        statusEl.style.color = "red";
+        setUIEnabled(false);
+      } else {
+        statusEl.innerText = "System status: ONLINE";
+        statusEl.style.color = "green";
+        setUIEnabled(true);
+      }
+    });
+  
+    /* ===== Parking Data ===== */
     db.ref("parking").on("value", snapshot => {
       const data = snapshot.val();
       if (!data) return;
-
+  
       updateSpot("1", data.P1);
       updateSpot("2", data.P2);
       updateSpot("3", data.P3);
-
+  
       document.getElementById("count").innerText =
         "Available: " + data.availableCount + " / 3";
-
+  
       if (data.lastUpdate) {
         const date = new Date(data.lastUpdate * 1000);
         document.getElementById("updated").innerText =
           "Last updated: " + date.toLocaleTimeString();
       }
     });
-
+  
     function updateSpot(id, spot) {
       let circle = document.getElementById("c" + id);
       let status = document.getElementById("s" + id);
-
+  
       if (spot.status === "Occupied") {
         circle.style.background = "red";
         status.innerText = "Occupied";
@@ -207,11 +212,10 @@
         status.style.color = "green";
       }
     }
-
+  
     function setUIEnabled(enabled) {
       document.querySelector(".container").style.opacity = enabled ? "1" : "0.4";
     }
-
   </script>
 
 </body>
