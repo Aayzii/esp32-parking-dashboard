@@ -24,58 +24,59 @@
       background-position: center;
       background-repeat: no-repeat;
       background-attachment: fixed;
-      text-align: center;
     }
 
-    /* ===== Header White Box ===== */
+    /* ===== CENTER TITLE BOX ===== */
     .header-box {
-      max-width: 900px;
-      margin: 30px auto 15px;
+      margin: 30px auto;
       padding: 20px 30px;
       background: rgba(255, 255, 255, 0.9);
       border-radius: 14px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      width: fit-content;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 30px;
     }
 
     .header-title {
-      font-size: 32px;
+      font-size: 34px;
       font-weight: bold;
       color: #222;
-      text-align: left;
+      text-align: center;
     }
 
     .header-logo img {
-      height: 60px;
+      height: 90px; /* 🔥 Bigger logo */
       object-fit: contain;
     }
 
-    /* ===== Info Box ===== */
+    /* ===== SYSTEM INFO (TOP LEFT) ===== */
     .info-box {
-      max-width: 900px;
-      margin: 0 auto 25px;
-      padding: 12px 20px;
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 12px;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 12px 18px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
       box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-      font-size: 16px;
+      font-size: 14px;
+      text-align: left;
     }
 
     .info-box h2,
     .info-box h3 {
-      margin: 6px 0;
+      margin: 4px 0;
       font-weight: normal;
     }
 
-    /* ===== Parking Cards ===== */
+    /* ===== PARKING ===== */
     .container {
       display: flex;
       justify-content: space-around;
-      padding: 20px;
       max-width: 900px;
-      margin: 0 auto;
+      margin: 40px auto 0;
+      padding: 20px;
     }
 
     .spot {
@@ -84,6 +85,7 @@
       padding: 15px;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      text-align: center;
     }
 
     .label {
@@ -105,21 +107,25 @@
       margin-top: 5px;
     }
 
-    /* ===== Mobile ===== */
+    /* ===== MOBILE (UNCHANGED LOGIC) ===== */
     @media (max-width: 768px) {
       .header-box {
         flex-direction: column;
         gap: 10px;
-        text-align: center;
       }
 
       .header-title {
         font-size: 26px;
-        text-align: center;
       }
 
       .header-logo img {
-        height: 50px;
+        height: 60px;
+      }
+
+      .info-box {
+        position: static;
+        margin: 10px auto;
+        text-align: center;
       }
 
       .container {
@@ -143,21 +149,19 @@
 
 <body>
 
-  <!-- ===== HEADER ===== -->
-  <div class="header-box">
-    <div class="header-title">Parking Spot Availability</div>
-
-    <!-- 🔴 PUT YOUR LOGO FILE HERE -->
-    <div class="header-logo">
-      <img src="logo.png" alt="Logo">
-    </div>
-  </div>
-
-  <!-- ===== INFO ===== -->
+  <!-- ===== SYSTEM INFO ===== -->
   <div class="info-box">
     <h2 id="systemStatus" style="color: gray;">System status: Checking...</h2>
     <h2 id="count">Available: -- / 3</h2>
     <h3 id="updated">Last updated: --</h3>
+  </div>
+
+  <!-- ===== TITLE + LOGO ===== -->
+  <div class="header-box">
+    <div class="header-title">Parking Spot Availability</div>
+    <div class="header-logo">
+      <img src="logo.png" alt="Logo">
+    </div>
   </div>
 
   <!-- ===== PARKING ===== -->
