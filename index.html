@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>ESP32 Parking Dashboard</title>
 
-  <!-- Mobile scaling -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Firebase -->
@@ -12,7 +11,6 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <style>
-    /* ===== FIX BACKGROUND FOR PC + MOBILE ===== */
     html, body {
       width: 100%;
       height: 100%;
@@ -21,31 +19,65 @@
 
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
-      min-height: 100vh;
-
-      /* 🌄 Background image */
       background-image: url("background1.jpeg");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       background-attachment: fixed;
+      text-align: center;
     }
 
-    h1, h2, h3 {
+    /* ===== Header White Box ===== */
+    .header-box {
+      max-width: 900px;
+      margin: 30px auto 15px;
+      padding: 20px 30px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-title {
+      font-size: 32px;
+      font-weight: bold;
       color: #222;
-      margin: 10px 0;
+      text-align: left;
     }
 
-    /* ===== Container ===== */
+    .header-logo img {
+      height: 60px;
+      object-fit: contain;
+    }
+
+    /* ===== Info Box ===== */
+    .info-box {
+      max-width: 900px;
+      margin: 0 auto 25px;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+      font-size: 16px;
+    }
+
+    .info-box h2,
+    .info-box h3 {
+      margin: 6px 0;
+      font-weight: normal;
+    }
+
+    /* ===== Parking Cards ===== */
     .container {
       display: flex;
       justify-content: space-around;
-      margin-top: 40px;
       padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
     }
 
-    /* ===== Parking Card ===== */
     .spot {
       width: 180px;
       background: rgba(255, 255, 255, 0.85);
@@ -73,21 +105,27 @@
       margin-top: 5px;
     }
 
-    /* ===== Mobile View ===== */
+    /* ===== Mobile ===== */
     @media (max-width: 768px) {
-
-      h1 {
-        font-size: 24px;
+      .header-box {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
       }
 
-      h2, h3 {
-        font-size: 18px;
+      .header-title {
+        font-size: 26px;
+        text-align: center;
+      }
+
+      .header-logo img {
+        height: 50px;
       }
 
       .container {
         flex-direction: column;
-        align-items: center;
         gap: 25px;
+        align-items: center;
       }
 
       .spot {
@@ -99,27 +137,30 @@
         width: 100px;
         height: 100px;
       }
-
-      .label {
-        font-size: 22px;
-      }
-
-      .status {
-        font-size: 18px;
-      }
     }
   </style>
 </head>
 
 <body>
 
-  <h1>Parking Spot Availability</h1>
-  <h2 id="systemStatus" style="color: gray;">
-    System status: Checking...
-  </h2>
-  <h2 id="count">Available: -- / 3</h2>
-  <h3 id="updated">Last updated: --</h3>
+  <!-- ===== HEADER ===== -->
+  <div class="header-box">
+    <div class="header-title">Parking Spot Availability</div>
 
+    <!-- 🔴 PUT YOUR LOGO FILE HERE -->
+    <div class="header-logo">
+      <img src="logo.png" alt="Logo">
+    </div>
+  </div>
+
+  <!-- ===== INFO ===== -->
+  <div class="info-box">
+    <h2 id="systemStatus" style="color: gray;">System status: Checking...</h2>
+    <h2 id="count">Available: -- / 3</h2>
+    <h3 id="updated">Last updated: --</h3>
+  </div>
+
+  <!-- ===== PARKING ===== -->
   <div class="container">
 
     <div class="spot">
@@ -143,76 +184,73 @@
   </div>
 
   <script>
-    /* ===== Firebase Init ===== */
     var firebaseConfig = {
       databaseURL: "https://esp32-parking-1c553-a6c2e-default-rtdb.asia-southeast1.firebasedatabase.app/"
     };
-  
+
     firebase.initializeApp(firebaseConfig);
     var db = firebase.database();
-  
-    /* ===== System Online / Offline Detection ===== */
-    const OFFLINE_TIMEOUT = 15; // seconds
-  
+
+    const OFFLINE_TIMEOUT = 15;
+
     db.ref("/system").on("value", snapshot => {
       const system = snapshot.val();
-      const statusEl = document.getElementById("systemStatus");
-  
+      const el = document.getElementById("systemStatus");
+
       if (!system || !system.lastSeen) {
-        statusEl.innerText = "System status: OFFLINE";
-        statusEl.style.color = "red";
+        el.innerText = "System status: OFFLINE";
+        el.style.color = "red";
         setUIEnabled(false);
         return;
       }
-  
+
       const now = Math.floor(Date.now() / 1000);
       const diff = now - system.lastSeen;
-  
+
       if (diff > OFFLINE_TIMEOUT) {
-        statusEl.innerText = "System status: OFFLINE";
-        statusEl.style.color = "red";
+        el.innerText = "System status: OFFLINE";
+        el.style.color = "red";
         setUIEnabled(false);
       } else {
-        statusEl.innerText = "System status: ONLINE";
-        statusEl.style.color = "green";
+        el.innerText = "System status: ONLINE";
+        el.style.color = "green";
         setUIEnabled(true);
       }
     });
-  
-    /* ===== Parking Data ===== */
+
     db.ref("parking").on("value", snapshot => {
       const data = snapshot.val();
       if (!data) return;
-  
+
       updateSpot("1", data.P1);
       updateSpot("2", data.P2);
       updateSpot("3", data.P3);
-  
+
       document.getElementById("count").innerText =
         "Available: " + data.availableCount + " / 3";
-  
+
       if (data.lastUpdate) {
         const date = new Date(data.lastUpdate * 1000);
         document.getElementById("updated").innerText =
           "Last updated: " + date.toLocaleTimeString();
       }
     });
-  
+
     function updateSpot(id, spot) {
-      let circle = document.getElementById("c" + id);
-      let status = document.getElementById("s" + id);
-  
+      const c = document.getElementById("c" + id);
+      const s = document.getElementById("s" + id);
+
       if (spot.status === "Occupied") {
-        circle.style.background = "red";
-        status.innerText = "Occupied";
-        status.style.color = "red";
+        c.style.background = "red";
+        s.innerText = "Occupied";
+        s.style.color = "red";
       } else {
-        circle.style.background = "green";
-        status.innerText = "Available";
-        status.style.color = "green";
+        c.style.background = "green";
+        s.innerText = "Available";
+        s.style.color = "green";
       }
     }
-  
+
     function setUIEnabled(enabled) {
       document.querySelector(".container").style.opacity = enabled ? "1" : "0.4";
     }
