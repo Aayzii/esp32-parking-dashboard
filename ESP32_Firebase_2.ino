@@ -4,12 +4,12 @@
 #include <map>
 
 // ===== WiFi =====
-#define WIFI_SSID "1235"
-#define WIFI_PASSWORD "12345678"
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
 
 // ===== Firebase =====
-#define API_KEY "AIzaSyAeLRy8bN953HOMqqBlHRE3qJU7nq-1CJI"
-#define DATABASE_URL "https://esp32-parking-1c553-a6c2e-default-rtdb.asia-southeast1.firebasedatabase.app/"
+#define API_KEY ""
+#define DATABASE_URL ""
 
 // ===== Ultrasonic Pins =====
 #define TRIG_P1 5
